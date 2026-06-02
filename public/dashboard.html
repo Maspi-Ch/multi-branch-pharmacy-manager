@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard – PharmaTrack</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --green:      #2d6a4f;
+            --green-mid:  #40916c;
+            --green-lite: #b7e4c7;
+            --cream:      #f8f4ef;
+            --text:       #1b2023;
+            --muted:      #6b7a80;
+            --card:       #ffffff;
+            --border:     #dde3e0;
+            --red:        #c0392b;
+            --red-lite:   #fdf0ef;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            color: var(--text);
+            padding: 32px 24px;
+        }
+
+        .container { max-width: 1300px; margin: 0 auto; }
+
+        /* ── HEADER ── */
+        .header {
+            background: var(--green);
+            border-radius: 16px;
+            padding: 24px 36px;
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            width: 320px; height: 320px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            top: -140px; right: -80px;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            width: 180px; height: 180px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            bottom: -60px; left: 200px;
+        }
+        .brand-name { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: #fff; }
+        .brand-name span { color: var(--green-lite); }
+        .brand-sub { font-size: 0.82rem; color: rgba(255,255,255,0.55); font-weight: 300; margin-top: 3px; }
+
+        .user-info { display: flex; align-items: center; gap: 16px; position: relative; z-index: 1; }
+
+        .badge {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            display: flex; align-items: center; gap: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .user-name-badge {
+            background: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.85);
+            padding: 8px 16px;
+            border-radius: 200px;
+            font-size: 0.82rem;
+            display: flex; align-items: center; gap: 8px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .logout-btn {
+            background: rgba(192,57,43,0.85);
+            color: white; border: none;
+            padding: 10px 22px; border-radius: 10px;
+            cursor: pointer; font-size: 0.88rem;
+            font-family: 'DM Sans', sans-serif;
+            display: flex; align-items: center; gap: 8px;
+            transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+        }
+        .logout-btn:hover { background: var(--red); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(192,57,43,0.35); }
+
+        /* ── STATS GRID ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: var(--card); border-radius: 14px;
+            padding: 28px; border: 1.5px solid var(--border);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+            position: relative; overflow: hidden;
+        }
+        .stat-card::before {
+            content: ''; position: absolute; top: 0; left: 0;
+            width: 100%; height: 4px;
+            background: var(--card-color);
+            border-radius: 14px 14px 0 0;
+        }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 12px 32px rgba(45,106,79,0.12); border-color: var(--green-lite); }
+
+        .stat-card.medicines { --card-color: var(--green); }
+        .stat-card.batches   { --card-color: #9b59b6; }
+        .stat-card.branches  { --card-color: #2980b9; }
+        .stat-card.suppliers { --card-color: var(--green-mid); }
+        .stat-card.sales     { --card-color: #e67e22; }
+        .stat-card.expiry    { --card-color: #e74c3c; }
+        .stat-card.lowstock  { --card-color: #e84393; }
+
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+
+        .icon-box {
+            width: 52px; height: 52px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; background: var(--card-color); color: white;
+        }
+
+        .edit-btn {
+            background: #f0f4f2; border: 1.5px solid var(--border);
+            width: 34px; height: 34px; border-radius: 8px;
+            cursor: pointer; color: var(--muted);
+            transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem;
+        }
+        .edit-btn:hover { background: var(--card-color); border-color: var(--card-color); color: white; transform: rotate(90deg); }
+
+        .stat-value { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: var(--text); margin-bottom: 6px; }
+        .stat-label { color: var(--text); font-size: 0.95rem; font-weight: 600; }
+        .stat-description { margin-top: 6px; font-size: 0.78rem; color: var(--muted); }
+
+        /* ── MODAL ── */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(27,32,35,0.55);
+            z-index: 1000;
+            align-items: center; justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: var(--card); border-radius: 18px;
+            width: 90%; max-width: 900px;
+            max-height: 82vh; overflow: hidden;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.18);
+            animation: modalSlide 0.25s ease;
+        }
+        .modal-content.wide { max-width: 1150px; }
+
+        @keyframes modalSlide {
+            from { opacity: 0; transform: translateY(-40px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            background: var(--green); color: white;
+            padding: 22px 28px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: relative; overflow: hidden;
+        }
+        .modal-header::after {
+            content: ''; position: absolute;
+            width: 200px; height: 200px; border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            top: -80px; right: -40px;
+        }
+        .modal-header h2 {
+            font-family: 'Playfair Display', serif; font-size: 1.3rem;
+            display: flex; align-items: center; gap: 12px;
+            position: relative; z-index: 1;
+        }
+        .close-modal {
+            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
+            width: 38px; height: 38px; border-radius: 10px;
+            color: white; font-size: 1rem; cursor: pointer;
+            transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; z-index: 1;
+        }
+        .close-modal:hover { background: rgba(255,255,255,0.25); transform: rotate(90deg); }
+
+        .modal-body { padding: 28px; overflow-y: auto; max-height: calc(82vh - 80px); }
+
+        /* ── SEARCH BAR ── */
+        .search-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+        .search-bar-wrap input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.92rem;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text);
+            outline: none;
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-bar-wrap input:focus {
+            border-color: var(--green-mid);
+            box-shadow: 0 0 0 3px rgba(64,145,108,0.12);
+        }
+        .search-bar-wrap .search-icon {
+            color: var(--muted);
+            font-size: 0.95rem;
+            position: relative;
+            right: 0;
+        }
+
+        /* ── TABLE ── */
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.9rem; }
+        .data-table th {
+            background: #f0f4f2; font-weight: 600; color: var(--green);
+            text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.06em;
+            padding: 13px 16px; text-align: left; border-bottom: 2px solid var(--border);
+        }
+        .data-table td { padding: 13px 16px; border-bottom: 1px solid var(--border); color: var(--text); }
+        .data-table tr:hover td { background: #f8fbf9; }
+        .data-table tr:last-child td { border-bottom: none; }
+
+        .delete-btn {
+            background: var(--red-lite); color: var(--red);
+            border: 1px solid #f5c6c2; padding: 7px 14px;
+            border-radius: 7px; cursor: pointer;
+            font-size: 0.8rem; font-family: 'DM Sans', sans-serif; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;
+        }
+        .delete-btn:hover { background: var(--red); color: white; border-color: var(--red); }
+
+        /* ── ADD FORM ── */
+        .add-form {
+            background: #f0f4f2; border: 1.5px solid var(--border);
+            padding: 18px 20px; border-radius: 12px; margin-bottom: 20px;
+            display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end;
+        }
+        .form-group { flex: 1; min-width: 160px; }
+        .form-group label {
+            display: block; margin-bottom: 7px; color: var(--text);
+            font-weight: 600; font-size: 0.78rem;
+            text-transform: uppercase; letter-spacing: 0.06em;
+        }
+        .form-group input, .form-group select {
+            width: 100%; padding: 11px 15px;
+            border: 1.5px solid var(--border); border-radius: 10px;
+            font-size: 0.93rem; font-family: 'DM Sans', sans-serif;
+            background: #fff; color: var(--text); outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--green-mid);
+            box-shadow: 0 0 0 3px rgba(64,145,108,0.12);
+        }
+        .form-group .required-star { color: var(--red); margin-left: 2px; }
+
+        .add-btn {
+            background: var(--green); color: white; border: none;
+            padding: 11px 26px; border-radius: 10px; cursor: pointer;
+            font-size: 0.9rem; font-family: 'DM Sans', sans-serif; font-weight: 600;
+            display: flex; align-items: center; gap: 8px;
+            transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+            white-space: nowrap; align-self: flex-end;
+        }
+        .add-btn:hover { background: var(--green-mid); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(45,106,79,0.3); }
+
+        /* ── ALERT BADGE ── */
+        .badge-warning { background: #fff4e5; color: #b45309; border: 1px solid #fcd34d; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .badge-danger  { background: var(--red-lite); color: var(--red); border: 1px solid #f5c6c2; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+
+        /* ── EMPTY STATE ── */
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+        .empty-state i { font-size: 3rem; margin-bottom: 16px; color: var(--green-lite); display: block; }
+        .empty-state h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--text); margin-bottom: 8px; }
+        .empty-state p { font-size: 0.88rem; }
+
+        /* ── SPINNER ── */
+        .spinner { border: 2px solid var(--border); border-top: 2px solid var(--green); border-radius: 50%; width: 36px; height: 36px; animation: spin 0.8s linear infinite; margin: 40px auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── FOOTER ── */
+        .page-footer { text-align: center; font-size: 0.75rem; color: var(--muted); margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border); }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            .header { flex-direction: column; text-align: center; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .stat-value { font-size: 2rem; }
+            body { padding: 16px 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-section">
+                <div>
+                    <div class="brand-name">🌿 Pharma<span>Track</span></div>
+                    <div class="brand-sub">Multi-branch pharmacy inventory management</div>
+                </div>
+            </div>
+            <div class="user-info">
+                <div class="user-name-badge">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="headerUsername">User</span>
+                </div>
+                <div class="badge">
+                    <i class="fas fa-circle" style="font-size:0.5rem; color:var(--green-lite);"></i>
+                    <span id="headerRole">Staff</span>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card medicines" onclick="openModal('medicines')">
+                <div class="card-header">
+                    <div class="icon-box"><i class="fas fa-pills"></i></div>
+                    <button class="edit-btn" onclick="event.stopPropagation(); openEditModal('medicines')">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                </div>
+                <div class="stat-value" id="val-medicines">–</div>
+                <div class="stat-label">Total Medicines</div>
+                <div class="stat-description">Click to view all medicines</div>
+            </div>
+
+            <div class="stat-card batches" onclick="openModal('batches')">
+                <div class="card-header">
+                    <div class="icon-box"><i class="fas fa-boxes"></i></div>
+                    <button class="edit-btn" onclick="event.stopPropagation(); openEditModal('batches')">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                </div>
+                <div class="stat-value" id="val-batches">–</div>
+                <div class="stat-label">Total Batches</div>
+                <div class="stat-description">Click to view all batches</div>
+            </div>
+
+            <div class="stat-card branches" onclick="openModal('branches')">
+                <div class="card-header">
+                    <div class="icon-box"><i class="fas fa-store"></i></div>
+                    <button class="edit-btn" onclick="event.stopPropagation(); openEditModal('branches')">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                </div>
+                <div class="stat-value" id="val-branches">–</div>
+                <div class="stat-label">Branches</div>
+                <div class="stat-description">Click to view all branches</div>
+            </div>
+
+            <div class="stat-card suppliers" onclick="openModal('suppliers')">
+                <div class="card-header">
+                    <div class="icon-box"><i class="fas fa-truck"></i></div>
+                    <button class="edit-btn" onclick="event.stopPropagation(); openEditModal('suppliers')">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                </div>
+                <div class="stat-value" id="val-suppliers">–</div>
+                <div class="stat-label">Suppliers</div>
+                <div class="stat-description">Click to view all suppliers</div>
+            </div>
+
+            <div class="stat-card sales" onclick="openModal('sales')">
+                <div class="card-header">
+                    <div class="icon-box"><i class="fas fa-shopping-cart"></i></div>
+                    <button class="edit-btn" onclick="event.stopPropagation(); openEditModal('sales')">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                </div>
+                <div class="stat-value" id="val-sales">–</div>
+                <div class="stat-label">Total Sales</div>
+                <div class="stat-description">Click to view all sales</div>
+            </div>
+
+            <div class="stat-card expiry" onclick="openModal('expiry')">
+                <div class="card-header">
+                    <div class="icon-box"><i class="fas fa-exclamation-triangle"></i></div>
+                </div>
+                <div class="stat-value" id="val-expiry">–</div>
+                <div class="stat-label">Expiry Alerts</div>
+                <div class="stat-description">Expiring within 90 days</div>
+            </div>
+
+            <div class="stat-card lowstock" onclick="openModal('lowstock')">
+                <div class="card-header">
+                    <div class="icon-box"><i class="fas fa-chart-line"></i></div>
+                </div>
+                <div class="stat-value" id="val-lowstock">–</div>
+                <div class="stat-label">Low Stock Items</div>
+                <div class="stat-description">Below minimum threshold</div>
+            </div>
+        </div>
+
+        <div class="page-footer">PharmaTrack &nbsp;•&nbsp; Qwerry Crafters &nbsp;•&nbsp; v1.0</div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         VIEW MODAL (read-only) — with search bars for
+         batches (by Batch ID), suppliers (by Supplier ID),
+         and sales (keyword search)
+    ═══════════════════════════════════════════════════════ -->
+    <div class="modal" id="viewModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">
+                    <i class="fas fa-list"></i>
+                    <span>Records</span>
+                </h2>
+                <button class="close-modal" onclick="closeModal('viewModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Search bar: shown only for batches / suppliers / sales views -->
+                <div class="search-bar-wrap" id="viewSearchWrap" style="display:none;">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="viewSearchInput" placeholder="Search…" oninput="filterViewTable()">
+                </div>
+                <div id="modalBody"><div class="spinner"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         EDIT MODAL (add / delete)
+    ═══════════════════════════════════════════════════════ -->
+    <div class="modal" id="editModal">
+        <div class="modal-content wide">
+            <div class="modal-header">
+                <h2 id="editModalTitle">
+                    <i class="fas fa-edit"></i>
+                    <span>Manage Records</span>
+                </h2>
+                <button class="close-modal" onclick="closeModal('editModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <!-- ── MEDICINES form (7 fields) ── -->
+                <div class="add-form" id="medicineForm" style="display:none;">
+                    <div class="form-group">
+                        <label>Medicine ID</label>
+                        <input type="number" id="med_id" placeholder="e.g. 101">
+                    </div>
+                    <div class="form-group">
+                        <label>Category ID</label>
+                        <input type="number" id="med_category_id" placeholder="e.g. 3">
+                    </div>
+                    <div class="form-group">
+                        <label>Medicine Name <span class="required-star">*</span></label>
+                        <input type="text" id="med_name" placeholder="e.g. Paracetamol">
+                    </div>
+                    <div class="form-group">
+                        <label>Generic Name</label>
+                        <input type="text" id="med_generic" placeholder="e.g. Acetaminophen">
+                    </div>
+                    <div class="form-group">
+                        <label>Dosage Form</label>
+                        <input type="text" id="med_form" placeholder="e.g. Tablet, Syrup">
+                    </div>
+                    <div class="form-group">
+                        <label>Dosage Strength</label>
+                        <input type="text" id="med_strength" placeholder="e.g. 500mg">
+                    </div>
+                    <div class="form-group">
+                        <label>Min Stock Threshold</label>
+                        <input type="number" id="med_threshold" placeholder="e.g. 50">
+                    </div>
+                    <button class="add-btn" onclick="addMedicine()">
+                        <i class="fas fa-plus"></i> Add
+                    </button>
+                </div>
+
+                <!-- ── BATCHES form (7 fields) ── -->
+                <div class="add-form" id="batchForm" style="display:none;">
+                    <div class="form-group">
+                        <label>Batch ID</label>
+                        <input type="number" id="bat_id" placeholder="e.g. 10">
+                    </div>
+                    <div class="form-group">
+                        <label>Batch No <span class="required-star">*</span></label>
+                        <input type="text" id="bat_no" placeholder="e.g. BT-2024-001">
+                    </div>
+                    <div class="form-group">
+                        <label>Quantity</label>
+                        <input type="number" id="bat_qty" placeholder="e.g. 200">
+                    </div>
+                    <div class="form-group">
+                        <label>Unit Price</label>
+                        <input type="number" step="0.01" id="bat_price" placeholder="e.g. 12.50">
+                    </div>
+                    <div class="form-group">
+                        <label>Received Date</label>
+                        <input type="date" id="bat_received">
+                    </div>
+                    <div class="form-group">
+                        <label>Medicine Name</label>
+                        <input type="text" id="bat_medicine" placeholder="e.g. Paracetamol">
+                    </div>
+                    <div class="form-group">
+                        <label>Branch Name</label>
+                        <input type="text" id="bat_branch" placeholder="e.g. Dhaka Main">
+                    </div>
+                    <div class="form-group">
+                        <label>Supplier Name</label>
+                        <input type="text" id="bat_supplier" placeholder="e.g. MedSupply Ltd">
+                    </div>
+                    <button class="add-btn" onclick="addBatch()">
+                        <i class="fas fa-plus"></i> Add
+                    </button>
+                </div>
+
+                <!-- ── BRANCHES form (3 fields) ── -->
+                <div class="add-form" id="branchForm" style="display:none;">
+                    <div class="form-group">
+                        <label>Branch ID</label>
+                        <input type="number" id="br_id" placeholder="e.g. 5">
+                    </div>
+                    <div class="form-group">
+                        <label>Branch Name <span class="required-star">*</span></label>
+                        <input type="text" id="br_name" placeholder="e.g. Chittagong Branch">
+                    </div>
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" id="br_location" placeholder="e.g. GEC Circle, Chittagong">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="text" id="br_phone" placeholder="e.g. 01712345678">
+                    </div>
+                    <button class="add-btn" onclick="addBranch()">
+                        <i class="fas fa-plus"></i> Add
+                    </button>
+                </div>
+
+                <!-- ── SUPPLIERS form (5 fields) ── -->
+                <div class="add-form" id="supplierForm" style="display:none;">
+                    <div class="form-group">
+                        <label>Supplier ID</label>
+                        <input type="number" id="sup_id" placeholder="e.g. 7">
+                    </div>
+                    <div class="form-group">
+                        <label>Supplier Name <span class="required-star">*</span></label>
+                        <input type="text" id="sup_name" placeholder="e.g. MedSupply Ltd">
+                    </div>
+                    <div class="form-group">
+                        <label>Contact No</label>
+                        <input type="text" id="sup_contact" placeholder="e.g. 01712345678">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="sup_email" placeholder="e.g. info@medsupply.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" id="sup_address" placeholder="e.g. 12 Industrial Area, Dhaka">
+                    </div>
+                    <button class="add-btn" onclick="addSupplier()">
+                        <i class="fas fa-plus"></i> Add
+                    </button>
+                </div>
+
+                <!-- ── SALES form (6 fields) ── -->
+                <div class="add-form" id="salesForm" style="display:none;">
+                    <div class="form-group">
+                        <label>Sale ID</label>
+                        <input type="number" id="sale_id" placeholder="e.g. 20">
+                    </div>
+                    <div class="form-group">
+                        <label>Quantity Sold <span class="required-star">*</span></label>
+                        <input type="number" id="sale_qty" placeholder="e.g. 10">
+                    </div>
+                    <div class="form-group">
+                        <label>Sale Date</label>
+                        <input type="date" id="sale_date">
+                    </div>
+                    <div class="form-group">
+                        <label>Sale Price</label>
+                        <input type="number" step="0.01" id="sale_price" placeholder="e.g. 250.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Batch No</label>
+                        <input type="text" id="sale_batch_no" placeholder="e.g. BT-2024-001">
+                    </div>
+                    <div class="form-group">
+                        <label>Medicine Name</label>
+                        <input type="text" id="sale_medicine" placeholder="e.g. Paracetamol">
+                    </div>
+                    <button class="add-btn" onclick="addSale()">
+                        <i class="fas fa-plus"></i> Add
+                    </button>
+                </div>
+
+                <div id="editTableContainer"><div class="spinner"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ── Read URL params ──────────────────────────────────────────────────────
+        (function() {
+            const params   = new URLSearchParams(window.location.search);
+            const username = params.get('username') || 'User';
+            const role     = params.get('role')     || 'Staff';
+            document.getElementById('headerUsername').textContent = username;
+            document.getElementById('headerRole').textContent = role.charAt(0).toUpperCase() + role.slice(1);
+        })();
+
+        let currentType  = '';
+        let viewAllData  = [];   // cache for client-side search in view modal
+
+        // ── Stats loader ─────────────────────────────────────────────────────────
+        async function loadStats() {
+            const types = ['medicines','batches','branches','suppliers','sales','expiry','lowstock'];
+            for (const type of types) {
+                try {
+                    const res  = await fetch(`/api/stats/${type}`);
+                    const data = await res.json();
+                    document.getElementById(`val-${type}`).textContent = data.value || 0;
+                } catch(e) { console.error(`Failed to load ${type} stats`, e); }
+            }
+        }
+
+        const apiEndpoints = {
+            medicines: '/api/medicines',
+            batches:   '/api/batches',
+            branches:  '/api/branches',
+            suppliers: '/api/suppliers',
+            sales:     '/api/sales',
+            expiry:    '/api/expiry-alerts',
+            lowstock:  '/api/low-stock'
+        };
+
+        const modalTitles = {
+            medicines: 'Medicines Inventory',
+            batches:   'Batch Records',
+            branches:  'Branch Locations',
+            suppliers: 'Supplier Information',
+            sales:     'Sales Records',
+            expiry:    'Expiry Alerts (next 90 days)',
+            lowstock:  'Low Stock Items'
+        };
+
+        // ── VIEW modal ───────────────────────────────────────────────────────────
+        // Search is available for: batches (by Batch_Id), suppliers (by Supplier_Id), sales (any field)
+        const searchableViews = ['batches', 'suppliers', 'sales'];
+
+        async function openModal(type) {
+            currentType = type;
+            const modal      = document.getElementById('viewModal');
+            const modalBody  = document.getElementById('modalBody');
+            const modalTitle = document.querySelector('#modalTitle span');
+            const searchWrap = document.getElementById('viewSearchWrap');
+            const searchInput = document.getElementById('viewSearchInput');
+
+            modalTitle.textContent = modalTitles[type] || type;
+            modal.classList.add('active');
+            modalBody.innerHTML = '<div class="spinner"></div>';
+            viewAllData = [];
+
+            // Show/hide search bar
+            if (searchableViews.includes(type)) {
+                searchWrap.style.display = 'flex';
+                searchInput.value = '';
+                searchInput.placeholder = type === 'batches'
+                    ? 'Search by Batch ID…'
+                    : type === 'suppliers'
+    ? 'Search by Supplier Name…'
+                        : 'Search sales…';
+            } else {
+                searchWrap.style.display = 'none';
+            }
+
+            try {
+                const res = await fetch(apiEndpoints[type]);
+                if (!res.ok) throw new Error(`Server returned ${res.status}: ${res.statusText}`);
+                const data = await res.json();
+                viewAllData = data;
+
+                if (data.length === 0) {
+                    const emptyMsg = type === 'expiry'
+                        ? 'No batches expiring within the next 90 days.'
+                        : type === 'lowstock'
+                            ? 'All stock levels are above minimum thresholds.'
+                            : `There are no ${type} records to display.`;
+                    modalBody.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-check-circle" style="color:var(--green-lite)"></i>
+                            <h3>All Clear</h3><p>${emptyMsg}</p>
+                        </div>`;
+                    return;
+                }
+
+                modalBody.innerHTML = createTable(data, type);
+            } catch(err) {
+                modalBody.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h3>Error Loading Data</h3><p>${err.message}</p>
+                    </div>`;
+            }
+        }
+
+        // Client-side filter for view modal
+        function filterViewTable() {
+            const query  = document.getElementById('viewSearchInput').value.trim().toLowerCase();
+            const body   = document.getElementById('modalBody');
+
+            if (!viewAllData.length) return;
+
+            let filtered = viewAllData;
+            if (query) {
+                filtered = viewAllData.filter(row => {
+                    if (currentType === 'batches') {
+                        // search strictly by Batch_Id
+                        return String(row['Batch_Id']).toLowerCase().includes(query);
+                    } else if (currentType === 'suppliers') {
+                        // search by Supplier_Name
+                        return String(row['Supplier_Name']).toLowerCase().includes(query);
+                    } else {
+                        // sales: search any field
+                        return Object.values(row).some(v =>
+                            String(v !== null ? v : '').toLowerCase().includes(query)
+                        );
+                    }
+                });
+            }
+
+            if (filtered.length === 0) {
+                body.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>No Results</h3><p>No records match your search.</p>
+                    </div>`;
+                return;
+            }
+            body.innerHTML = createTable(filtered, currentType);
+        }
+
+        // ── EDIT modal ───────────────────────────────────────────────────────────
+        const editForms = ['medicineForm','batchForm','branchForm','supplierForm','salesForm'];
+
+        function hideAllForms() {
+            editForms.forEach(id => document.getElementById(id).style.display = 'none');
+        }
+
+        async function openEditModal(type) {
+            currentType = type;
+            const modal      = document.getElementById('editModal');
+            const container  = document.getElementById('editTableContainer');
+            const modalTitle = document.querySelector('#editModalTitle span');
+
+            hideAllForms();
+
+            const formMap = {
+                medicines: 'medicineForm',
+                batches:   'batchForm',
+                branches:  'branchForm',
+                suppliers: 'supplierForm',
+                sales:     'salesForm'
+            };
+
+            if (formMap[type]) {
+                document.getElementById(formMap[type]).style.display = 'flex';
+            }
+
+            const titles = { medicines:'Medicines', batches:'Batches', branches:'Branches', suppliers:'Suppliers', sales:'Sales' };
+            modalTitle.textContent = `Manage ${titles[type] || type}`;
+            modal.classList.add('active');
+            container.innerHTML = '<div class="spinner"></div>';
+
+            try {
+                const res = await fetch(apiEndpoints[type]);
+                if (!res.ok) throw new Error(`Server returned ${res.status}: ${res.statusText}`);
+                const data = await res.json();
+
+                if (data.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <h3>No Records Found</h3>
+                            <p>Add your first record using the form above.</p>
+                        </div>`;
+                    return;
+                }
+                container.innerHTML = createTable(data, type, true);
+            } catch(err) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h3>Error Loading Data</h3><p>${err.message}</p>
+                    </div>`;
+            }
+        }
+
+        // ── Build table ──────────────────────────────────────────────────────────
+        function createTable(data, type, withDelete = false) {
+            if (!data || data.length === 0) return '';
+            const columns = Object.keys(data[0]);
+            return `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            ${columns.map(col => `<th>${col.replace(/_/g,' ')}</th>`).join('')}
+                            ${withDelete ? '<th>Actions</th>' : ''}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map(row => `
+                            <tr>
+                                ${columns.map(col => `<td>${row[col] !== null ? row[col] : '–'}</td>`).join('')}
+                                ${withDelete ? `
+                                    <td>
+                                        <button class="delete-btn" onclick="deleteRecord('${type}', ${row[columns[0]]})">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </td>` : ''}
+                            </tr>`).join('')}
+                    </tbody>
+                </table>`;
+        }
+
+        // ── ADD: Medicines ───────────────────────────────────────────────────────
+        async function addMedicine() {
+            const Medicine_Name = document.getElementById('med_name').value.trim();
+            if (!Medicine_Name) { alert('Medicine Name is required.'); return; }
+
+            const payload = {
+                Medicine_Id:         document.getElementById('med_id').value.trim()           || null,
+                Category_Id:         document.getElementById('med_category_id').value.trim()  || null,
+                Medicine_Name,
+                Generic_Name:        document.getElementById('med_generic').value.trim()      || null,
+                Dosage_Form:         document.getElementById('med_form').value.trim()         || null,
+                Dosage_Strength:     document.getElementById('med_strength').value.trim()     || null,
+                Min_Stock_Threshold: document.getElementById('med_threshold').value.trim()    || null
+            };
+
+            await submitAdd('/api/medicines', payload, 'medicines');
+        }
+
+        // ── ADD: Batches ─────────────────────────────────────────────────────────
+        async function addBatch() {
+            const Batch_No = document.getElementById('bat_no').value.trim();
+            if (!Batch_No) { alert('Batch No is required.'); return; }
+
+            const payload = {
+                Batch_Id:      document.getElementById('bat_id').value.trim()       || null,
+                Batch_No,
+                Quantity:      document.getElementById('bat_qty').value.trim()      || null,
+                Unit_Price:    document.getElementById('bat_price').value.trim()    || null,
+                Received_Date: document.getElementById('bat_received').value        || null,
+                Medicine_Name: document.getElementById('bat_medicine').value.trim() || null,
+                Branch_Name:   document.getElementById('bat_branch').value.trim()   || null,
+                Supplier_Name: document.getElementById('bat_supplier').value.trim() || null
+            };
+
+            await submitAdd('/api/batches', payload, 'batches');
+        }
+
+        // ── ADD: Branches ────────────────────────────────────────────────────────
+        async function addBranch() {
+            const Branch_Name = document.getElementById('br_name').value.trim();
+            if (!Branch_Name) { alert('Branch Name is required.'); return; }
+
+            const payload = {
+                Branch_Id:  document.getElementById('br_id').value.trim()       || null,
+                Branch_Name,
+                Location:   document.getElementById('br_location').value.trim() || null,
+                Phone:      document.getElementById('br_phone').value.trim()    || null
+            };
+
+            await submitAdd('/api/branches', payload, 'branches');
+        }
+
+        // ── ADD: Suppliers ───────────────────────────────────────────────────────
+        async function addSupplier() {
+            const Supplier_Name = document.getElementById('sup_name').value.trim();
+            if (!Supplier_Name) { alert('Supplier Name is required.'); return; }
+
+            const payload = {
+                Supplier_Id:   document.getElementById('sup_id').value.trim()      || null,
+                Supplier_Name,
+                Contact_No:    document.getElementById('sup_contact').value.trim() || null,
+                Email:         document.getElementById('sup_email').value.trim()   || null,
+                Address:       document.getElementById('sup_address').value.trim() || null
+            };
+
+            await submitAdd('/api/suppliers', payload, 'suppliers');
+        }
+
+        // ── ADD: Sales ───────────────────────────────────────────────────────────
+        async function addSale() {
+            const Quantity_Sold = document.getElementById('sale_qty').value.trim();
+            if (!Quantity_Sold) { alert('Quantity Sold is required.'); return; }
+
+            const payload = {
+                Sale_Id:       document.getElementById('sale_id').value.trim()       || null,
+                Quantity_Sold,
+                Sale_Date:     document.getElementById('sale_date').value            || null,
+                Sale_Price:    document.getElementById('sale_price').value.trim()    || null,
+                Batch_No:      document.getElementById('sale_batch_no').value.trim() || null,
+                Medicine_Name: document.getElementById('sale_medicine').value.trim() || null
+            };
+
+            await submitAdd('/api/sales', payload, 'sales');
+        }
+
+        // ── Generic submit helper ────────────────────────────────────────────────
+        async function submitAdd(endpoint, payload, type) {
+            try {
+                const res = await fetch(endpoint, {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify(payload)
+                });
+                const result = await res.json();
+                if (result.success) {
+                    openEditModal(type);
+                    loadStats();
+                } else {
+                    alert('Failed to add record: ' + (result.message || 'Unknown error'));
+                }
+            } catch(err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        // ── Delete ───────────────────────────────────────────────────────────────
+        async function deleteRecord(type, id) {
+            if (!confirm('Are you sure you want to delete this record?')) return;
+            try {
+                const res    = await fetch(`/api/${type}/${id}`, { method: 'DELETE' });
+                const result = await res.json();
+                if (result.success) {
+                    openEditModal(type);
+                    loadStats();
+                } else {
+                    alert('Failed to delete: ' + result.message);
+                }
+            } catch(err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        // ── Helpers ──────────────────────────────────────────────────────────────
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function logout() { window.location.href = '/'; }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        };
+
+        loadStats();
+    </script>
+</body>
+</html>

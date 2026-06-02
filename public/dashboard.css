@@ -1,0 +1,87 @@
+body{
+    background-color: #E8F5E9;
+    font-family: 'Gill Sans MT', Calibri;
+    margin: 0;
+    padding: 0;
+}
+.navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      height: 60px;
+     position: sticky;
+     
+    }
+.logo{
+    display: flex;
+    font-size: 24px;
+}
+.logout-button{
+    display: flex;
+    font-size: 17px;
+    padding: 0 6px 0 0; 
+}
+.welcoming{
+    position: relative;
+      background: linear-gradient(125deg, #D6F0B4, #0d1117);
+      padding: 40px 48px;
+      margin-bottom: 40px;
+      overflow: hidden;
+      animation: fadeUp 0.5s ease both;
+      justify-content: center;
+}
+.welcoming h1{
+    height: 20px;
+    background-size:10px ;
+    justify-content: center;
+}
+.welcome-title{
+    height: 20px;
+    background-size:10px ;
+}
+.status{
+      display: grid;
+      grid-template-columns: repeat(5, 0.7fr);
+      gap: 15px;
+      margin-bottom: 4px;
+     animation: fadeUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+      /* animation: fadeUp 0.5s ease 0.1s both; */
+        padding: 0px 9px 0px 9px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0);
+   border-radius: 12px;
+    }
+    .status > *:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0);
+}
+
+.stat-card{
+        
+      border: 1px solid black;
+      border-radius: 12px;
+      padding: 24px;
+      transition: border-color 0.2s, transform 0.2s;
+}
+
+    .stat-card:hover {
+      border-color: #000000;
+      transform: translateY(-6px);
+    }
+
+    .status-icon {
+      font-size: 35px;
+      margin-bottom: 10px;
+    }
+
+    .status-value {
+      font-family: 'Gill Sans MT', Calibri;
+      font-size: 32px;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .status-label {
+      font-size: 12px;
+      letter-spacing: 0.06em;
+    }
